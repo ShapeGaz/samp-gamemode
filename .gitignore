@@ -1,3 +1,5 @@
-pawno/
+compiler/
 build/
+.vscode/
 *.amx
+samp-gamemode.amx
