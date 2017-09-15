@@ -2,13 +2,36 @@
 
 #define GAMEMODE \
 	"samp-gamemode"
+#define HOSTNAME \ 
+	"Samp RolePlay"
 	
+#define void%0(%1)\
+	forward %0(%1); public %0(%1)
+
+#undef MAX_PLAYERS
+#define MAX_PLAYERS (300)
+
+#define MAX_PLAYER_PASSWORD 20
+
+enum {
+	dialog_auth,
+	dialog_reg,
+	dialog_gender,
+}
+
+#define COLOR_64 0xFFA500FF
+#define COLOR "{FFA500}"
+
+new regex:regex_password;
+
 #include "../source/library/a_mysql.inc"//R41-4
 #include "../source/library/sscanf2.inc"//2.8.2
 #include "../source/library/Pawn.CMD.inc"//Pawn.CMD
 #include "../source/library/Pawn.Regex.inc"//Pawn.Regex
 
 #include "../source/modules/mysql.pwn"
+#include "../source/modules/player.pwn"
+
 
 main()
 {
@@ -17,35 +40,57 @@ main()
 
 public OnGameModeInit()
 {
+	regex_password = regex_new("^([A-Z]|[a-z]|[0-9][à-ÿ][À-ß]){5,"#MAX_PLAYER_PASSWORD"}$");
 	SetGameModeText(GAMEMODE);
+
 	AddPlayerClass(0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
 	return true;
 }
 
-public OnGameModeExit()
+public OnGameModeExit() 
 {
+	regex_delete(regex_password);
 	return true;
 }
 
-public OnPlayerRequestClass(playerid, classid)
+stock SendFormatedText(playerid, color, fstring[], {Float, _}:...)
 {
-	SetPlayerPos(playerid, 1958.3783, 1343.1572, 15.3746);
-	SetPlayerCameraPos(playerid, 1958.3783, 1343.1572, 15.3746);
-	SetPlayerCameraLookAt(playerid, 1958.3783, 1343.1572, 15.3746);
-	return true;
-}
+    #if !defined BYTES_PER_CELL
+    const BYTES_PER_CELL = cellbits/charbits;
+    #endif
+    static const STATIC_ARGS = 3;
+    new n = (numargs() - STATIC_ARGS) * BYTES_PER_CELL;
+    if(n == 0)
+        return SendClientMessage(playerid, color, fstring);
+    new message[128], arg_start, arg_end;        
+    #emit CONST.alt        fstring
+    #emit LCTRL              5
+    #emit ADD
+    #emit STOR.S.pri        arg_start
 
-public OnPlayerConnect(playerid)
-{
-	return true;
-}
+    #emit LOAD.S.alt        n
+    #emit ADD
+    #emit STOR.S.pri        arg_end
+    do{
+        #emit LOAD.I
+        #emit PUSH.pri
+        arg_end -= BYTES_PER_CELL;
+        #emit LOAD.S.pri      arg_end
+    }while(arg_end > arg_start);
 
-public OnPlayerDisconnect(playerid, reason)
-{
-	return true;
-}
+    #emit PUSH.S          fstring
+    #emit PUSH.C          128
+    #emit PUSH.ADR       message
 
-public OnPlayerSpawn(playerid)
-{
-	return true;
-}
+    n += BYTES_PER_CELL * 3;
+    #emit PUSH.S           n
+    #emit SYSREQ.C       format
+
+    n += BYTES_PER_CELL;
+    #emit LCTRL             4
+    #emit LOAD.S.alt       n
+    #emit ADD
+    #emit SCTRL             4
+
+    return SendClientMessage(playerid, color, message);
+}  
