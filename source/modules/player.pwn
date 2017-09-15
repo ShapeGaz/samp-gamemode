@@ -126,6 +126,7 @@
 		new rand = random(12);
 		InterpolateCameraPos(playerid, camera_start_position[rand][0][0], camera_start_position[rand][0][1], camera_start_position[rand][0][2], camera_start_position[rand][0][3], camera_start_position[rand][0][4], camera_start_position[rand][0][5], cam_start_time_pos[rand]);
 		InterpolateCameraLookAt(playerid, camera_start_position[rand][1][0], camera_start_position[rand][1][1], camera_start_position[rand][1][2], camera_start_position[rand][1][3], camera_start_position[rand][1][4], camera_start_position[rand][1][5], cam_start_time_pos[rand]);
+		return true;
 	}
 
 	stock DialogResponseCallback(playerid, dialogid, response, listitem, inputtext[]) {
@@ -295,6 +296,8 @@
 
 	#if defined _player_OnPlayerConnect
 		return _player_OnPlayerConnect(playerid);
+	#else 
+		return true;
 	#endif
 	}
 	#if defined _ALS_OnPlayerConnect

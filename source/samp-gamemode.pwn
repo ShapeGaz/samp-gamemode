@@ -28,8 +28,10 @@ new regex:regex_password;
 #include "../source/library/sscanf2.inc"//2.8.2
 #include "../source/library/Pawn.CMD.inc"//Pawn.CMD
 #include "../source/library/Pawn.Regex.inc"//Pawn.Regex
+#include "../source/library/streamer.inc"//Streamer
 
 #include "../source/library/dc_kickfix.inc"//DC kick/ban fix
+#include "../source/library/pickfix.inc"//edwin pickup flood fix
 
 #include "../source/modules/mysql.pwn"
 #include "../source/modules/player.pwn"
