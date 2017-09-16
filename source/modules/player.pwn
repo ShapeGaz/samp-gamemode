@@ -68,6 +68,8 @@
 		player_gender,
 		player_skin,
 		player_attempt,
+		player_money,
+		Float:player_health,
 		ORM:player_orm,
 		player_nickname[MAX_PLAYER_NAME + 1],
 		player_password[64 + 1],
@@ -98,6 +100,9 @@
 		orm_addvar_int(orm_id, player[playerid][player_id], "id");
 		orm_addvar_int(orm_id, player[playerid][player_skin], "skin");
 		orm_addvar_int(orm_id, player[playerid][player_gender], "gender");
+		orm_addvar_int(orm_id, player[playerid][player_money], "money");
+
+		orm_addvar_float(orm_id, player[playerid][player_health], "health");
 
 		GetPlayerName(playerid, player[playerid][player_nickname], MAX_PLAYER_NAME);
 		
@@ -187,6 +192,8 @@
 	stock PlayerDisconnectCallback(playerid, reason) {
 		switch(reason) {
 			default: {
+				GetPlayerHealth(playerid, player[playerid][player_health]);
+				orm_save(player[playerid][player_orm]);
 				orm_clear_vars(player[playerid][player_orm]);
 				HideBorder(playerid);
 			}
@@ -199,6 +206,10 @@
 
 			player[playerid][player_logged] = !player[playerid][player_logged];
 			orm_setkey(player[playerid][player_orm], "id");
+
+			ResetPlayerMoney(playerid);
+			GivePlayerMoney(playerid, player[playerid][player_money]);
+			SetPlayerHealth(playerid, player[playerid][player_health]);
 		}
 		SetPlayerPos(playerid, 1743.2384, -1861.7690, 13.5771);
 		SetPlayerFacingAngle(playerid, 356.6750);
