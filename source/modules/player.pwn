@@ -205,7 +205,7 @@
 	}
 
 	stock GenerateSalt(salt[]) {
-        new sample[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        new sample[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         for( new ch; ch < 63; ch++ ) {
                 salt[ch] = sample[random(sizeof(sample) - 1)];
