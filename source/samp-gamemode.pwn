@@ -11,6 +11,10 @@
 #undef MAX_PLAYERS
 #define MAX_PLAYERS (300)
 
+#if !defined BYTES_PER_CELL
+ 	const BYTES_PER_CELL = cellbits/charbits;
+#endif
+
 #define MAX_PLAYER_PASSWORD 20
 
 enum {
@@ -39,12 +43,19 @@ new regex:regex_password;
 
 main()
 {
+	
+}
 
+stock SendSyntaxInfo(playerid, color, count, info[][])
+{
+	for(new i = 0; i < count; i++) {
+		SendClientMessage(playerid, color, info[i]);
+	}
 }
 
 public OnGameModeInit()
 {
-	regex_password = regex_new("^([A-Z]|[a-z]|[0-9][à-ÿ][À-ß]){5,"#MAX_PLAYER_PASSWORD"}$");
+	regex_password = regex_new("^([A-Z]|[a-z]|[0-9][à-ÿ][À-ß]){4,20}$");
 	SetGameModeText(GAMEMODE);
 
 	AddPlayerClass(0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
@@ -57,11 +68,8 @@ public OnGameModeExit()
 	return true;
 }
 
-stock SendFormatedText(playerid, color, fstring[], {Float, _}:...)
+stock SendFormatMessage(playerid, color, fstring[], {Float, _}:...)
 {
-    #if !defined BYTES_PER_CELL
-    const BYTES_PER_CELL = cellbits/charbits;
-    #endif
     static const STATIC_ARGS = 3;
     new n = (numargs() - STATIC_ARGS) * BYTES_PER_CELL;
     if(n == 0)
@@ -97,4 +105,4 @@ stock SendFormatedText(playerid, color, fstring[], {Float, _}:...)
     #emit SCTRL             4
 
     return SendClientMessage(playerid, color, message);
-}  
+}   

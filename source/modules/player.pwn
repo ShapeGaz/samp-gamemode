@@ -1,12 +1,9 @@
-
 #if !defined MYSQL_MODULE_
 	#error "Error loading mysql module (Module: player)"
 #endif
 
 #if !defined PLAYER_MODULE_
 	#define PLAYER_MODULE_
-
-	new PlayerText:TD_Border[5];
 
 	static const Float:camera_start_position[12][2][6] = {
 		{
@@ -72,7 +69,7 @@
 		Float:player_health,
 		ORM:player_orm,
 		player_nickname[MAX_PLAYER_NAME + 1],
-		player_password[64 + 1],
+		player_password[65 + 1],
 		player_salt[64 + 1],
 		bool:player_logged
 	};
@@ -87,9 +84,6 @@
 	stock PlayerConnectCallback(playerid) {
 
 		player[playerid][player_logged] = false;
-
-		CreateBorder(playerid);
-		ShowBorder(playerid);
 
 		new ORM:orm_id = player[playerid][player_orm] = orm_create("players");
 
@@ -155,8 +149,8 @@
 				
 				new hash[64 + 1];
 
-				SHA256_PassHash(inputtext, player[playerid][player_salt], hash, 64);
-
+				SHA256_PassHash(inputtext, player[playerid][player_salt], hash, 65);
+				printf("%s | %s", hash, player[playerid][player_password]);
 				if(!strcmp(hash, player[playerid][player_password], false)) {
 					SpawnPlayer(playerid);
 				} else {
@@ -166,7 +160,7 @@
 
 					player[playerid][player_attempt] += 1;
 					ShowPlayerDialog(playerid, dialog_auth, DIALOG_STYLE_INPUT, "Вход в аккаунт", "{FFFFFF}Авторизация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВспомните пароль, введенный при регистрации.\n\nВведите этот пароль в поле ниже:", "Далее", "Отмена");
-					SendFormatedText(playerid, COLOR_64, "Не верный пароль, попробуйте заного.У вас осталось %d попыток(и)", (4 - player[playerid][player_attempt]));
+					SendFormatMessage(playerid, COLOR_64, "Не верный пароль, попробуйте заного.У вас осталось %d попыток(и)", (4 - player[playerid][player_attempt]));
 				}
 			}
 
@@ -181,7 +175,11 @@
 				SHA256_PassHash(player[playerid][player_password], player[playerid][player_salt], hash, 64);
 				strmid(player[playerid][player_password], hash, 0, sizeof(hash));
 				
+				player[playerid][player_health] = 100.0;
+				player[playerid][player_money] = 250;
+
 				orm_insert(player[playerid][player_orm], "", "", "");
+
 				orm_update(player[playerid][player_orm]);
 
 				PlayerConnectCallback(playerid);
@@ -195,15 +193,12 @@
 				GetPlayerHealth(playerid, player[playerid][player_health]);
 				orm_save(player[playerid][player_orm]);
 				orm_clear_vars(player[playerid][player_orm]);
-				HideBorder(playerid);
 			}
 		}
 	}
 	
 	stock PlayerSpawnCallback(playerid) {
 		if(!player[playerid][player_logged]) {
-			HideBorder(playerid);
-
 			player[playerid][player_logged] = !player[playerid][player_logged];
 			orm_setkey(player[playerid][player_orm], "id");
 
@@ -215,55 +210,61 @@
 		SetPlayerFacingAngle(playerid, 356.6750);
 	}
 
+	stock Float:GetDistanceBetweenPlayers(const playerid, const targetid)
+	{
+		if(!IsPlayerConnected(playerid) || !IsPlayerConnected(targetid)) return -1.0;
+		new Float:CurrentPos[3];
+		GetPlayerPos(targetid, CurrentPos[0], CurrentPos[1], CurrentPos[2]);
+		return GetPlayerDistanceFromPoint(playerid, CurrentPos[0], CurrentPos[1], CurrentPos[2]);
+	}
+
+	CMD:pay(playerid, params[]) 
+	{
+		new 
+			targetid,
+			count;
+			
+		new ar[][] = {
+			"[Аргумент команды]{FFA500} targetid - {FFE801}Идентификатор игрока.",
+			"[Аргумент команды]{FFA500} count - {FFE801}Количество денег, которое необходимо передать."
+		};
+
+		if(sscanf(params, "dd", targetid, count)) {
+			SendClientMessage(playerid, -1, "Синтаксис команды: /pay [targetid] [count]");
+			SendSyntaxInfo(playerid, 0x479200FF, 2, ar);
+			
+			return true;
+		}
+
+		if(GetDistanceBetweenPlayers(playerid, targetid) > 15.0) {
+			SendClientMessage(playerid, 0xFFA500FF, "Данный игрок слишком далеко от вас.");
+			return true;
+		}
+
+		if(player[playerid][player_money] < count) {
+			SendClientMessage(playerid, 0xFFA500FF, "У вас нету столько наличных.");
+			return true;
+		}
+
+		if(!IsPlayerConnected(targetid)) {
+			SendClientMessage(playerid, 0xFFA500FF, "Игрока с данным идентификатором несуществует.");
+			return true;
+		}
+
+		player[playerid][player_money] -= count;
+		player[targetid][player_money] += count;
+
+		SendFormatMessage(playerid, 0x29ae00ff, "%s[%d] передал вам $%d", player[playerid][player_nickname], playerid, count);
+		SendFormatMessage(playerid, 0x29ae00ff, "Вы передали $%d игроку %s[%d]", count, player[playerid][player_nickname], playerid);
+		return true;
+	}
+
 	stock GenerateSalt(salt[]) {
         new sample[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
         for( new ch; ch < 63; ch++ ) {
                 salt[ch] = sample[random(sizeof(sample) - 1)];
         }
-	}
-
-	stock ShowBorder(playerid) 
-	{
-		for(new i = 0; i < sizeof(TD_Border); i++) 
-			PlayerTextDrawShow(playerid, TD_Border[i]);
-	}
-
-	stock HideBorder(playerid) 
-	{
-		for(new i = 0; i < sizeof(TD_Border); i++) 
-			PlayerTextDrawHide(playerid, TD_Border[i]);
-	}
-
-	stock CreateBorder(playerid) 
-	{
-		TD_Border[0] = CreatePlayerTextDraw(playerid, 650.000000, 0.000000, "New TD");
-		PlayerTextDrawBackgroundColor(playerid, TD_Border[0], 255);
-		PlayerTextDrawFont(playerid, TD_Border[0], 1);
-		PlayerTextDrawLetterSize(playerid, TD_Border[0], 0.529999, 6.900000);
-		PlayerTextDrawColor(playerid, TD_Border[0], -1);
-		PlayerTextDrawSetOutline(playerid, TD_Border[0], 0);
-		PlayerTextDrawSetProportional(playerid, TD_Border[0], 1);
-		PlayerTextDrawSetShadow(playerid, TD_Border[0], 1);
-		PlayerTextDrawUseBox(playerid, TD_Border[0], 1);
-		PlayerTextDrawBoxColor(playerid, TD_Border[0], 148);
-		PlayerTextDrawTextSize(playerid, TD_Border[0], -110.000000, 0.000000);
-		PlayerTextDrawSetSelectable(playerid, TD_Border[0], 0);
-
-		TD_Border[1] = CreatePlayerTextDraw(playerid, 650.000000, 500.000000, "New TD");
-		PlayerTextDrawBackgroundColor(playerid, TD_Border[1], 255);
-		PlayerTextDrawFont(playerid, TD_Border[1], 1);
-		PlayerTextDrawLetterSize(playerid, TD_Border[1], 0.529999, -10.000000);
-		PlayerTextDrawColor(playerid, TD_Border[1], -1);
-		PlayerTextDrawSetOutline(playerid, TD_Border[1], 0);
-		PlayerTextDrawSetProportional(playerid, TD_Border[1], 1);
-		PlayerTextDrawSetShadow(playerid, TD_Border[1], 1);
-		PlayerTextDrawUseBox(playerid, TD_Border[1], 1);
-		PlayerTextDrawBoxColor(playerid, TD_Border[1], 148);
-		PlayerTextDrawTextSize(playerid, TD_Border[1], -110.000000, 0.000000);
-		PlayerTextDrawSetSelectable(playerid, TD_Border[1], 0);
-
-		return true;
 	}
 
 	public OnPlayerRequestClass(playerid, classid)
