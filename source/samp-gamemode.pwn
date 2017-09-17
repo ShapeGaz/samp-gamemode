@@ -46,13 +46,6 @@ main()
 	
 }
 
-stock SendSyntaxInfo(playerid, color, count, info[][])
-{
-	for(new i = 0; i < count; i++) {
-		SendClientMessage(playerid, color, info[i]);
-	}
-}
-
 public OnGameModeInit()
 {
 	regex_password = regex_new("^([A-Z]|[a-z]|[0-9][à-ÿ][À-ß]){4,20}$");
@@ -106,3 +99,10 @@ stock SendFormatMessage(playerid, color, fstring[], {Float, _}:...)
 
     return SendClientMessage(playerid, color, message);
 }   
+
+stock SendSyntaxInfo(playerid, color, count, info[][])
+{
+	for(new i = 0; i < count; i++) {
+		SendClientMessage(playerid, color, info[i]);
+	}
+}
