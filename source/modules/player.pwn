@@ -256,6 +256,10 @@
 
 		SendFormatMessage(playerid, 0x29ae00ff, "%s[%d] передал вам $%d", player[playerid][player_nickname], playerid, count);
 		SendFormatMessage(playerid, 0x29ae00ff, "Вы передали $%d игроку %s[%d]", count, player[playerid][player_nickname], playerid);
+		
+		GetPlayerHealth(playerid, player[playerid][player_health]);
+		orm_save(player[playerid][player_orm]);
+		
 		return true;
 	}
 
