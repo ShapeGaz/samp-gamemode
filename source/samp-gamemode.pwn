@@ -49,7 +49,7 @@ main()
 
 public OnGameModeInit()
 {
-	regex_password = regex_new("^([A-Z]|[a-z]|[0-9][à-ÿ][À-ß]){4,20}$");
+	regex_password = regex_new("[0-9a-zA-Z!@#$%^&*]{6,20}");
 	SetGameModeText(GAMEMODE);
 
 	AddPlayerClass(0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
