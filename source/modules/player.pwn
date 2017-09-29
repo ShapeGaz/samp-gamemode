@@ -150,7 +150,7 @@
 				new hash[64 + 1];
 
 				SHA256_PassHash(inputtext, player[playerid][player_salt], hash, 65);
-				printf("%s | %s", hash, player[playerid][player_password]);
+				
 				if(!strcmp(hash, player[playerid][player_password], false)) {
 					SpawnPlayer(playerid);
 				} else {
@@ -191,6 +191,7 @@
 		switch(reason) {
 			default: {
 				GetPlayerHealth(playerid, player[playerid][player_health]);
+
 				orm_save(player[playerid][player_orm]);
 				orm_clear_vars(player[playerid][player_orm]);
 			}
