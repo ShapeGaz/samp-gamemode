@@ -40,6 +40,9 @@
 
 #define MAX_PLAYER_PASSWORD 20
 
+#define _LISTITEM(); switch(listitem)  {}
+#define _INPUTTEXT(); inputtext[0] = '\0';
+
 enum {
 	dialog_auth,
 	dialog_reg,
@@ -50,6 +53,7 @@ enum {
 #define COLOR "{FFA500}"
 
 new regex:regex_password;
+
 
 #include "../source/library/crashdetect.inc"//crashdetect
 
@@ -62,18 +66,34 @@ new regex:regex_password;
 #include "../source/library/dc_kickfix.inc"//DC kick/ban fix
 #include "../source/library/foreach.inc"//foreach
 
-#include "../source/library/pickfix.inc"//edwin pickup flood fix
+#include "../source/library/u_dialogs.inc"//стяжкин
 
-#include "../source/modules/mysql.pwn"
-#include "../source/modules/player.pwn"
+#include "../source/modules/player/player.pwn"
 
+stock SendSyntaxInfo(playerid, color, count, info[][])
+{
+	for(new i = 0; i < count; i++) {
+		SendClientMessage(playerid, color, info[i]);
+	}
+}
 
 main()
 {
 }
 
+new MySQL:connect_mysql;
+
 public OnGameModeInit()
 {
+	connect_mysql = mysql_connect_file();
+		
+	if(mysql_errno() != 0) {
+		print("Не удается подключиться к базе данных.");
+		return false;
+	} else {
+		print("Подключение к базе данных установлено");
+	}
+
 	regex_password = regex_new("[0-9a-zA-Z!@#$%^&*]{6,20}");
 	SetGameModeText(GAMEMODE);
 
@@ -85,7 +105,48 @@ public OnGameModeInit()
 
 public OnGameModeExit() 
 {
+	mysql_close(connect_mysql);
 	regex_delete(regex_password);
+	return true;
+}
+
+public OnPlayerConnect(playerid)
+{
+#if defined PLAYER_MODULE_
+	PLAYER_OnPlayerConnect(playerid);
+#endif
+	return true;
+}
+
+public OnPlayerDisconnect(playerid, reason)
+{
+#if defined PLAYER_MODULE_
+	PLAYER_OnPlayerDisconnect(playerid, reason);
+#endif
+	return true;
+}
+
+public OnPlayerText(playerid, text[])
+{
+#if defined PLAYER_MODULE_
+	PLAYER_OnPlayerText(playerid, text);
+#endif
+	return true;
+}
+
+public OnPlayerRequestClass(playerid, classid)
+{
+#if defined PLAYER_MODULE_
+	PLAYER_OnPlayerRequestClass(playerid);
+#endif
+	return true;
+}
+
+public OnPlayerSpawn(playerid)
+{
+#if defined PLAYER_MODULE_
+	PLAYER_OnPlayerSpawn(playerid);
+#endif
 	return true;
 }
 
@@ -128,10 +189,3 @@ stock SendFormatMessage(playerid, color, fstring[], {Float, _}:...)
 
     return SendClientMessage(playerid, color, message);
 }   
-
-stock SendSyntaxInfo(playerid, color, count, info[][])
-{
-	for(new i = 0; i < count; i++) {
-		SendClientMessage(playerid, color, info[i]);
-	}
-}

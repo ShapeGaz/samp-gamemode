@@ -21,50 +21,30 @@
 	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#if !defined MYSQL_MODULE_
-	#define MYSQL_MODULE_
-
-	new MySQL:connect_mysql;
-
-	public OnGameModeInit()
+#if !defined SendSyntaxInfo
+	stock SendSyntaxInfo(playerid, color, count, info[][])
 	{
-		connect_mysql = mysql_connect_file();
-		
-		if(mysql_errno() != 0) {
-			print("Не удается подключиться к базе данных.");
-			return false;
-		} else {
-			print("Подключение к базе данных установлено");
+		for(new i = 0; i < count; i++) {
+			SendClientMessage(playerid, color, info[i]);
 		}
-	#if defined _mysql_OnGameModeInit
-		return _mysql_OnGameModeInit();
-	#endif
 	}
-	#if defined _ALS_OnGameModeInit
-		#undef    OnGameModeInit
-	#else
-		#define    _ALS_OnGameModeInit
-	#endif
-	#define    OnGameModeInit    _mysql_OnGameModeInit
-	#if defined _mysql_OnGameModeInit
-	forward _mysql_OnGameModeInit();
-	#endif  
-
-	public OnGameModeExit()
-	{
-		mysql_close(connect_mysql);
-	#if defined _mysql_OnGameModeExit
-		return _mysql_OnGameModeExit();
-	#endif
-	}
-	#if defined _ALS_OnGameModeExit
-		#undef    OnGameModeExit
-	#else
-		#define    _ALS_OnGameModeExit
-	#endif
-	#define    OnGameModeExit    _mysql_OnGameModeExit
-	#if defined _mysql_OnGameModeExit
-	forward _mysql_OnGameModeExit();
-	#endif  
 #endif
 
+CMD:gc(playerid, text[]) 
+	{
+	new args[][] = {
+		!"[Аргумент команды]{FFA500} text - {FFE801}Текст в глобальный чат."
+	};
+
+	if(sscanf(text, "s[110]", text)) {
+		SendClientMessage(playerid, -1, !"Синтаксис команды: /gc [text]");
+		SendSyntaxInfo(playerid, 0x479200FF, 1, args);
+		
+		return true;
+	}
+
+	FindSpecifiersInString(text, 144);
+	format(text, 144, "(Чат: Глобальный) %s[%d]: {FFFFFF}%s", player[playerid][player_nickname], playerid, text);
+	ProxDetector(playerid, 30.0, GetPlayerColor(playerid), text);
+	return true;
+}
