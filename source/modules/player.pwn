@@ -98,6 +98,7 @@
 		player_gender,
 		player_skin,
 		player_attempt,
+		player_level,
 		player_money,
 		Float:player_health,
 		ORM:player_orm,
@@ -129,6 +130,7 @@
 		orm_addvar_int(orm_id, player[playerid][player_id], "id");
 		orm_addvar_int(orm_id, player[playerid][player_skin], "skin");
 		orm_addvar_int(orm_id, player[playerid][player_gender], "gender");
+		orm_addvar_int(orm_id, player[playerid][player_level], "level");
 		orm_addvar_int(orm_id, player[playerid][player_money], "money");
 
 		orm_addvar_float(orm_id, player[playerid][player_health], "health");
@@ -285,6 +287,7 @@
 			ResetPlayerMoney(playerid);
 			GivePlayerMoney(playerid, player[playerid][player_money]);
 			SetPlayerHealth(playerid, player[playerid][player_health]);
+			SetPlayerScore(playerid, player[playerid][player_level]);
 		}
 		SetPlayerPos(playerid, 1743.2384, -1861.7690, 13.5771);
 		SetPlayerFacingAngle(playerid, 356.6750);
