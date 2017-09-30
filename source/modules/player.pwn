@@ -21,6 +21,16 @@
 	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+#if !defined GetDistanceBetweenPlayers 	
+	stock Float:GetDistanceBetweenPlayers(const playerid, const targetid)
+	{
+		if(!IsPlayerConnected(playerid) || !IsPlayerConnected(targetid)) return -1.0;
+		new Float:CurrentPos[3];
+		GetPlayerPos(targetid, CurrentPos[0], CurrentPos[1], CurrentPos[2]);
+		return GetPlayerDistanceFromPoint(playerid, CurrentPos[0], CurrentPos[1], CurrentPos[2]);
+	}
+#endif
+
 #if !defined MYSQL_MODULE_
 	#error "Error loading mysql module (Module: player)"
 #endif
@@ -106,6 +116,8 @@
 
 	stock PlayerConnectCallback(playerid) {
 
+		SetPlayerColor(playerid, 0xFFFFFF55);
+
 		player[playerid][player_logged] = false;
 
 		new ORM:orm_id = player[playerid][player_orm] = orm_create("players");
@@ -134,12 +146,28 @@
 		switch(orm_errno(player[playerid][player_orm])) {
 			case ERROR_NO_DATA: {
 				orm_setkey(player[playerid][player_orm], "id");
-				ShowPlayerDialog(playerid, dialog_reg, DIALOG_STYLE_INPUT, "Регистрация аккаунта", "{FFFFFF}Регистрация на "#COLOR #HOSTNAME"{FFFFFF}\n\nПридумайте сложный пароль, состоящий минимум из 6 символов.\nИспользуйте разные символы, в разном регистре и цифры.\n\nВведите придуманный пароль в поле ниже:", "Далее", "Отмена");
+				ShowPlayerDialog(
+					playerid, 
+					dialog_reg,
+					DIALOG_STYLE_INPUT, 
+					!"Регистрация аккаунта", 
+					!"{FFFFFF}Регистрация на "#COLOR #HOSTNAME"{FFFFFF}\n\nПридумайте сложный пароль, состоящий минимум из 6 символов.\nИспользуйте разные символы, в разном регистре и цифры.\n\nВведите придуманный пароль в поле ниже:", 
+					!"Далее", 
+					!"Отмена"
+				);
 			}
 			
 			case ERROR_OK: {
 				SetSpawnInfo(playerid, 0, player[playerid][player_skin], 1743.2384, -1861.7690, 13.5771, 356.6750, 0, 0, 0, 0, 0, 0);
-				ShowPlayerDialog(playerid, dialog_auth, DIALOG_STYLE_INPUT, "Вход в аккаунт", "{FFFFFF}Авторизация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВспомните пароль, введенный при регистрации.\n\nВведите этот пароль в поле ниже:", "Далее", "Отмена");
+				ShowPlayerDialog(
+					playerid, 
+					dialog_auth, 
+					DIALOG_STYLE_INPUT, 
+					!"Вход в аккаунт", 
+					!"{FFFFFF}Авторизация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВспомните пароль, введенный при регистрации.\n\nВведите этот пароль в поле ниже:", 
+					!"Далее", 
+					!"Отмена"
+				);
 			}
 		}
 	}
@@ -160,9 +188,24 @@
 				strmid(player[playerid][player_password], inputtext, 0, strlen(inputtext));
 
 				if(!regex_check(inputtext, regex_password)) {
-					ShowPlayerDialog(playerid, dialog_reg, DIALOG_STYLE_INPUT, "Регистрация аккаунта | Выбор пароля", "{FFFFFF}Регистрация на "#COLOR #HOSTNAME"{FFFFFF}\n\nПридумайте сложный пароль, состоящий минимум из 6 символов.\nИспользуйте разные символы, в разном регистре и цифры.\n\nВведите придуманный пароль в поле ниже:\n\n{FF0000}Пароль должен быть длинее 6 и меньше 20 символов!", "Далее", "Отмена");
+					ShowPlayerDialog(
+						playerid, 
+						dialog_reg, 
+						DIALOG_STYLE_INPUT, 
+						!"Регистрация аккаунта | Выбор пароля", 
+						!"{FFFFFF}Регистрация на "#COLOR #HOSTNAME"{FFFFFF}\n\nПридумайте сложный пароль, состоящий минимум из 6 символов.\nИспользуйте разные символы, в разном регистре и цифры.\n\nВведите придуманный пароль в поле ниже:\n\n{FF0000}Пароль должен быть длинее 6 и меньше 20 символов!", 
+						!"Далее", 
+						!"Отмена"
+					);
 				} else {
-					ShowPlayerDialog(playerid, dialog_gender, DIALOG_STYLE_MSGBOX, "Регистрация аккаунта | Выбор пола персонажа", "{FFFFFF}Регистрация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВыберите пол вашего персонажа:", "Мужской", "Женский");
+					ShowPlayerDialog(playerid, 
+						dialog_gender,
+						DIALOG_STYLE_MSGBOX, 
+						!"Регистрация аккаунта | Выбор пола персонажа", 
+						!"{FFFFFF}Регистрация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВыберите пол вашего персонажа:", 
+						!"Мужской", 
+						!"Женский"
+					);
 				}
 			}
 
@@ -182,8 +225,22 @@
 					}
 
 					player[playerid][player_attempt] += 1;
-					ShowPlayerDialog(playerid, dialog_auth, DIALOG_STYLE_INPUT, "Вход в аккаунт", "{FFFFFF}Авторизация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВспомните пароль, введенный при регистрации.\n\nВведите этот пароль в поле ниже:", "Далее", "Отмена");
-					SendFormatMessage(playerid, COLOR_64, "Не верный пароль, попробуйте заного.У вас осталось %d попыток(и)", (4 - player[playerid][player_attempt]));
+					ShowPlayerDialog(
+						playerid, 
+						dialog_auth, 
+						DIALOG_STYLE_INPUT, 
+						!"Вход в аккаунт", 
+						!"{FFFFFF}Авторизация на "#COLOR #HOSTNAME"{FFFFFF}\n\nВспомните пароль, введенный при регистрации.\n\nВведите этот пароль в поле ниже:", 
+						!"Далее", 
+						!"Отмена"
+					);
+
+					SendFormatMessage(
+						playerid, 
+						COLOR_64, 
+						!"Не верный пароль, попробуйте заного.У вас осталось %d попыток(и)", 
+						(4 - player[playerid][player_attempt])
+					);
 				}
 			}
 
@@ -213,9 +270,8 @@
 	stock PlayerDisconnectCallback(playerid, reason) {
 		switch(reason) {
 			default: {
-				GetPlayerHealth(playerid, player[playerid][player_health]);
+				SavePlayer(playerid);
 
-				orm_save(player[playerid][player_orm]);
 				orm_clear_vars(player[playerid][player_orm]);
 			}
 		}
@@ -234,12 +290,29 @@
 		SetPlayerFacingAngle(playerid, 356.6750);
 	}
 
-	stock Float:GetDistanceBetweenPlayers(const playerid, const targetid)
+	stock PlayerTextCallback(playerid, text[]) {
+		FindSpecifiersInString(text, 144);
+		format(text, 144, "(Чат: Местный) %s[%d]: {FFFFFF}%s", player[playerid][player_nickname], playerid, text);
+		ProxDetector(playerid, 30.0, GetPlayerColor(playerid), text);
+	}
+
+	CMD:gc(playerid, text[]) 
 	{
-		if(!IsPlayerConnected(playerid) || !IsPlayerConnected(targetid)) return -1.0;
-		new Float:CurrentPos[3];
-		GetPlayerPos(targetid, CurrentPos[0], CurrentPos[1], CurrentPos[2]);
-		return GetPlayerDistanceFromPoint(playerid, CurrentPos[0], CurrentPos[1], CurrentPos[2]);
+		new args[][] = {
+			!"[Аргумент команды]{FFA500} text - {FFE801}Текст в глобальный чат."
+		};
+
+		if(sscanf(text, "s[110]", text)) {
+			SendClientMessage(playerid, -1, !"Синтаксис команды: /gc [text]");
+			SendSyntaxInfo(playerid, 0x479200FF, 1, args);
+			
+			return true;
+		}
+
+		FindSpecifiersInString(text, 144);
+		format(text, 144, "(Чат: Глобальный) %s[%d]: {FFFFFF}%s", player[playerid][player_nickname], playerid, text);
+		ProxDetector(playerid, 30.0, GetPlayerColor(playerid), text);
+		return true;
 	}
 
 	CMD:pay(playerid, params[]) 
@@ -248,44 +321,111 @@
 			targetid,
 			count;
 			
-		new ar[][] = {
-			"[Аргумент команды]{FFA500} targetid - {FFE801}Идентификатор игрока.",
-			"[Аргумент команды]{FFA500} count - {FFE801}Количество денег, которое необходимо передать."
+		new args[][] = {
+			!"[Аргумент команды]{FFA500} targetid - {FFE801}Идентификатор игрока.",
+			!"[Аргумент команды]{FFA500} count - {FFE801}Количество денег, которое необходимо передать."
 		};
 
-		if(sscanf(params, "dd", targetid, count)) {
-			SendClientMessage(playerid, -1, "Синтаксис команды: /pay [targetid] [count]");
-			SendSyntaxInfo(playerid, 0x479200FF, 2, ar);
+		if(sscanf(params, "dd", targetid, count) || count < 1) {
+			SendClientMessage(playerid, -1, !"Синтаксис команды: /pay [targetid] [count]");
+			SendSyntaxInfo(playerid, 0x479200FF, 2, args);
 			
 			return true;
 		}
-
+		
 		if(GetDistanceBetweenPlayers(playerid, targetid) > 15.0) {
-			SendClientMessage(playerid, 0xFFA500FF, "Данный игрок слишком далеко от вас.");
+			SendClientMessage(playerid, 0xFFA500FF, !"Данный игрок слишком далеко от вас.");
 			return true;
 		}
 
 		if(player[playerid][player_money] < count) {
-			SendClientMessage(playerid, 0xFFA500FF, "У вас нету столько наличных.");
+			SendClientMessage(playerid, 0xFFA500FF, !"У вас нету столько наличных.");
 			return true;
 		}
 
-		if(!IsPlayerConnected(targetid)) {
-			SendClientMessage(playerid, 0xFFA500FF, "Игрока с данным идентификатором несуществует.");
+		if(!IsPlayerConnected(targetid) || playerid == targetid) {
+			SendClientMessage(playerid, 0xFFA500FF, !"Игрока с данным идентификатором несуществует.");
 			return true;
 		}
 
 		player[playerid][player_money] -= count;
 		player[targetid][player_money] += count;
 
-		SendFormatMessage(playerid, 0x29ae00ff, "%s[%d] передал вам $%d", player[playerid][player_nickname], playerid, count);
-		SendFormatMessage(playerid, 0x29ae00ff, "Вы передали $%d игроку %s[%d]", count, player[playerid][player_nickname], playerid);
+		SendFormatMessage(playerid, 0x29ae00ff, !"%s[%d] передал вам $%d", player[playerid][player_nickname], playerid, count);
+		SendFormatMessage(playerid, 0x29ae00ff, !"Вы передали $%d игроку %s[%d]", count, player[playerid][player_nickname], playerid);
 		
-		GetPlayerHealth(playerid, player[playerid][player_health]);
-		orm_save(player[playerid][player_orm]);
+		SavePlayer(playerid);
 		
 		return true;
 	}
+
+
+	stock SavePlayer(playerid)
+	{
+		GetPlayerHealth(playerid, player[playerid][player_health]);
+		orm_save(player[playerid][player_orm]);
+	}
+
+	stock ProxDetector(playerid, Float:max_range, color, string[], Float:max_ratio = 1.6) 
+	{ 
+		new 
+			Float:pos_x, 
+			Float:pos_y, 
+			Float:pos_z, 
+			Float:range, 
+			Float:range_ratio, 
+			Float:range_with_ratio, 
+			clr_r, clr_g, clr_b, 
+			Float:color_r, Float:color_g, Float:color_b; 
+
+		if (!GetPlayerPos(playerid, pos_x, pos_y, pos_z)) { 
+			return 0; 
+		} 
+
+		color_r = float(color >> 24 & 0xFF); 
+		color_g = float(color >> 16 & 0xFF); 
+		color_b = float(color >> 8 & 0xFF); 
+		range_with_ratio = max_range * max_ratio; 
+
+	#if defined foreach 
+		foreach (new i : Player) { 
+	#else 
+		for (new i = GetPlayerPoolSize(); i != -1; i--) { 
+	#endif 
+			if (!IsPlayerStreamedIn(playerid, i)) { 
+				continue; 
+			} 
+
+			range = GetPlayerDistanceFromPoint(i, pos_x, pos_y, pos_z); 
+			if (range > max_range) { 
+				continue; 
+			} 
+
+			range_ratio = (range_with_ratio - range) / range_with_ratio; 
+			clr_r = floatround(range_ratio * color_r); 
+			clr_g = floatround(range_ratio * color_g); 
+			clr_b = floatround(range_ratio * color_b); 
+
+			SendClientMessage(i, (color & 0xFF) | (clr_b << 8) | (clr_g << 16) | (clr_r << 24), string); 
+		} 
+
+		SendClientMessage(playerid, color, string); 
+		return 1; 
+	}  
+
+	stock FindSpecifiersInString(message[], array_size = sizeof(message))
+	{
+		new message_length = strlen(message);
+
+		for(new i; i < message_length; i++)
+		{
+			if(message[i] == '%')
+			{
+				if(message_length < array_size) strins(message, "%", i++, message_length++);
+				else message[i] = '#';
+			}
+		}
+	}  
 
 	stock GenerateSalt(salt[]) {
         new sample[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -294,6 +434,23 @@
                 salt[ch] = sample[random(sizeof(sample) - 1)];
         }
 	}
+
+	public OnPlayerText(playerid, text[])
+	{
+		PlayerTextCallback(playerid, text);
+	#if defined _player_OnPlayerText
+		return _player_OnPlayerText(playerid, text);
+	#endif
+	}
+	#if defined _ALS_OnPlayerText
+		#undef    OnPlayerText
+	#else
+		#define    _ALS_OnPlayerText
+	#endif
+	#define    OnPlayerText    _player_OnPlayerText
+	#if defined _player_OnPlayerText
+	forward _player_OnPlayerText(playerid, text[]);
+	#endif  
 
 	public OnPlayerRequestClass(playerid, classid)
 	{

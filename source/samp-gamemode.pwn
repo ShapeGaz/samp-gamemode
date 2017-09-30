@@ -2,7 +2,7 @@
 	 Copyright (c) 2017 Yuriy Abramov (RegasenDev)
  
 	Permission is hereby granted, free of charge, to any person obtaining
-	a copy of this software and associated documentation files (the
+	a copy of6 this software and associated documentation files (the
 	"Software"), to deal in the Software without restriction, including
 	without limitation the rights to use, copy, modify, merge, publish,
 	distribute, sublicense, and/or sell copies of the Software, and to
@@ -24,9 +24,9 @@
 #include <a_samp>
 
 #define GAMEMODE \
-	"samp-gamemode"
+	"RolePlay"
 #define HOSTNAME \ 
-	"Samp RolePlay"
+	"Regasen RolePlay"
 	
 #define void%0(%1)\
 	forward %0(%1); public %0(%1)
@@ -60,6 +60,8 @@ new regex:regex_password;
 #include "../source/library/streamer.inc"//Streamer
 
 #include "../source/library/dc_kickfix.inc"//DC kick/ban fix
+#include "../source/library/foreach.inc"//foreach
+
 #include "../source/library/pickfix.inc"//edwin pickup flood fix
 
 #include "../source/modules/mysql.pwn"
@@ -76,6 +78,8 @@ public OnGameModeInit()
 	SetGameModeText(GAMEMODE);
 
 	AddPlayerClass(0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, 0, 0, 0);
+
+	SendRconCommand("hostname " #HOSTNAME);
 	return true;
 }
 
@@ -91,6 +95,7 @@ stock SendFormatMessage(playerid, color, fstring[], {Float, _}:...)
     new n = (numargs() - STATIC_ARGS) * BYTES_PER_CELL;
     if(n == 0)
         return SendClientMessage(playerid, color, fstring);
+
     new message[128], arg_start, arg_end;        
     #emit CONST.alt        fstring
     #emit LCTRL              5
