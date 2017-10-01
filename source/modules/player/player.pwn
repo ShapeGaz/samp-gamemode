@@ -20,8 +20,8 @@
 	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#if !defined PLAYER_MODULE_
-	#define PLAYER_MODULE_
+#if !defined PLAYER_CORE_MODULE_
+	#define PLAYER_CORE_MODULE_
 
 	#include "../source/modules/player/variables.inc"
 	#include "../source/modules/player/functions.inc"
@@ -29,13 +29,22 @@
 	#include "../source/modules/player/commands.inc"
 	#include "../source/modules/player/auth.inc"
 	
+	stock PLAYER_OnGameModeInit() {
+		/** .sql файл должен быть сохранен в кодировке UTF-8 без BOM! **/
+		mysql_query(connect_mysql, "SHOW TABLES LIKE 'core_players'");
+		if(cache_num_rows() == 0) {
+			mysql_query_file(connect_mysql, "core_players.sql");
+			print("Системная таблица core_players импортирована.");
+		}
+	}
+
 	stock PLAYER_OnPlayerConnect(playerid) {
 		SetPlayerColor(playerid, 0xFFFFFF55);
 		SetSpawnInfo(playerid, 0, 0, 1743.2384, -1861.7690, 13.5771, 356.6750, 0, 0, 0, 0, 0, 0);
 				
 		player[playerid][player_logged] = false;
 
-		new ORM:orm_id = player[playerid][player_orm] = orm_create("players");
+		new ORM:orm_id = player[playerid][player_orm] = orm_create("core_players");
 
 		orm_addvar_string(orm_id, player[playerid][player_nickname], MAX_PLAYER_NAME, "nickname");
 		orm_addvar_string(orm_id, player[playerid][player_salt], 65, "salt");

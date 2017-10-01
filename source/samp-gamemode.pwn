@@ -53,6 +53,7 @@ enum {
 #define COLOR "{FFA500}"
 
 new regex:regex_password;
+new MySQL:connect_mysql;
 
 
 #include "../source/library/crashdetect.inc"//crashdetect
@@ -81,8 +82,6 @@ main()
 {
 }
 
-new MySQL:connect_mysql;
-
 public OnGameModeInit()
 {
 	connect_mysql = mysql_connect_file();
@@ -94,6 +93,9 @@ public OnGameModeInit()
 		print("Подключение к базе данных установлено");
 	}
 
+#if defined PLAYER_CORE_MODULE_
+	PLAYER_OnGameModeInit();
+#endif
 	regex_password = regex_new("[0-9a-zA-Z!@#$%^&*]{6,20}");
 	SetGameModeText(GAMEMODE);
 
@@ -112,7 +114,7 @@ public OnGameModeExit()
 
 public OnPlayerConnect(playerid)
 {
-#if defined PLAYER_MODULE_
+#if defined PLAYER_CORE_MODULE_
 	PLAYER_OnPlayerConnect(playerid);
 #endif
 	return true;
@@ -120,7 +122,7 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason)
 {
-#if defined PLAYER_MODULE_
+#if defined PLAYER_CORE_MODULE_
 	PLAYER_OnPlayerDisconnect(playerid, reason);
 #endif
 	return true;
@@ -128,7 +130,7 @@ public OnPlayerDisconnect(playerid, reason)
 
 public OnPlayerText(playerid, text[])
 {
-#if defined PLAYER_MODULE_
+#if defined PLAYER_CORE_MODULE_
 	PLAYER_OnPlayerText(playerid, text);
 #endif
 	return true;
@@ -136,7 +138,7 @@ public OnPlayerText(playerid, text[])
 
 public OnPlayerRequestClass(playerid, classid)
 {
-#if defined PLAYER_MODULE_
+#if defined PLAYER_CORE_MODULE_
 	PLAYER_OnPlayerRequestClass(playerid);
 #endif
 	return true;
@@ -144,7 +146,7 @@ public OnPlayerRequestClass(playerid, classid)
 
 public OnPlayerSpawn(playerid)
 {
-#if defined PLAYER_MODULE_
+#if defined PLAYER_CORE_MODULE_
 	PLAYER_OnPlayerSpawn(playerid);
 #endif
 	return true;
