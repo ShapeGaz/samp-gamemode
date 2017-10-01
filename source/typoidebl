@@ -1,0 +1,17 @@
+const dolbeb = 2;
+
+public OnChelsiBaby()
+{
+  new yuriy;
+  #emit LOAD.pri dolbeb
+  #emit ADD
+  #emit STOR.S.pri yuriy
+  do{
+    SendClientMessage(playerid,-1,"Yuriy dolbaeb");
+  } while(dolbaeb > 0)
+  #emit LOAD.alt dolbeb
+  #emit STOR.s.alt yuriy
+  do{
+    SendClientMessage(playerid,-1,"Yuriy dolbaeb");
+  } while(dolbaeb < 0)
+}
